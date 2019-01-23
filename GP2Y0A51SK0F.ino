@@ -8,7 +8,7 @@ unsigned int sensorA_v = 0;
 unsigned int sensorB_v = 0;
 int sensor_diff = 0;
 
-unsigned int sensor_distance = 0;
+unsigned int sensorAB_distance = 10; //cm
 
 // 2~15cm
 //                      2     3    4    5    6    7   8     9   10   11   12   13   14   15
@@ -35,28 +35,45 @@ void loop() {
   
   sensorA.voltage = sensorA.adc * (5.0 / 1023.0);
   sensorB.voltage = sensorB.adc * (5.0 / 1023.0);
+
+  for(int i=0;i<14;i++){
+    if(sensorA.voltage<= table_voltage[i]){
+        sensorA.distance =i+2;
+    }
+    if(sensorB.voltage<= table_voltage[i]){
+        sensorB.distance =i+2;
+    }
+  }
+  Serial.print(asin((sensorA.distance-sensorB.distance)/sensorAB_distance)*180);
+  Serial.println("°");
+  
+
   Serial.print("L: ");
   Serial.print(sensorB.adc);
   Serial.print(" , ");
   Serial.print(sensorB.voltage);
-  Serial.println("v");
+  Serial.print("v, | ");
+  Serial.print(sensorB.distance);
+  Serial.println("cm");
   
   Serial.print("R: ");
   Serial.print(sensorA.adc);
   Serial.print(" , ");
   Serial.print(sensorA.voltage);
-  Serial.println("v");
+  Serial.print("v, | ");
+  Serial.print(sensorA.distance);
+  Serial.println("cm");
   
   Serial.print("closer side: ");
   sensor_diff = sensorA.adc - sensorB.adc;
   Serial.print(sensor_diff);
   if(sensor_diff>5){
-    Serial.println("  [ R ]");
+    Serial.println("               [ R ]");
   }else if(sensor_diff<-5){
-    Serial.println("  [ L ]");
+    Serial.println("               [ L ]");
   }
 
-  Serial.println("--------------------");
+  Serial.println("-----------------------------------");
   
   delay(100);
 } 
